@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tela de Teste</title>
+  <title>Login</title>
   <style>
     :root {
       --bg: #f4f6fb;
@@ -15,6 +15,7 @@
       --border: #d1d5db;
       --success: #16a34a;
       --error: #dc2626;
+      --hint-bg: #f0fdf4;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -24,6 +25,7 @@
         --text: #e5e7eb;
         --muted: #94a3b8;
         --border: #334155;
+        --hint-bg: #14301f;
       }
     }
 
@@ -50,6 +52,8 @@
       padding: 32px 24px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     }
+
+    .hidden { display: none; }
 
     h1 {
       margin: 0 0 4px;
@@ -84,6 +88,34 @@
       outline-offset: 1px;
     }
 
+    .senha-wrapper { position: relative; }
+
+    .senha-wrapper input { padding-right: 70px; }
+
+    .mostrar-senha {
+      position: absolute;
+      right: 8px;
+      top: 7px;
+      width: auto;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .mostrar-senha:hover { background: transparent; color: var(--text); }
+
+    .lembrar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
+
+    .lembrar input { width: auto; margin: 0; }
+
     button {
       width: 100%;
       padding: 12px;
@@ -98,60 +130,310 @@
 
     button:hover { background: var(--primary-hover); }
 
-    #mensagem {
+    button:disabled { opacity: 0.6; cursor: wait; }
+
+    button.secundario {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.secundario:hover { background: var(--bg); }
+
+    .mensagem {
       margin-top: 16px;
       min-height: 1.2em;
       text-align: center;
       font-weight: 500;
     }
 
-    #mensagem.sucesso { color: var(--success); }
-    #mensagem.erro { color: var(--error); }
+    .mensagem.sucesso { color: var(--success); }
+    .mensagem.erro { color: var(--error); }
+
+    .troca {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .troca a { color: var(--primary); font-weight: 600; cursor: pointer; }
+
+    .dica {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--hint-bg);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .dica code { color: var(--text); font-weight: 600; }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .painel { text-align: center; }
+
+    .info {
+      text-align: left;
+      margin: 0 0 24px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .info div { padding: 4px 0; }
+    .info span { color: var(--muted); }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Tela de Teste</h1>
-    <p class="subtitle">Preencha os campos abaixo.</p>
+  <!-- Tela de login -->
+  <main class="card" id="tela-login">
+    <h1>Entrar</h1>
+    <p class="subtitle">Acesse sua conta para continuar.</p>
 
-    <form id="formulario" novalidate>
-      <label for="nome">Nome</label>
-      <input type="text" id="nome" placeholder="Seu nome">
+    <form id="form-login" novalidate>
+      <label for="login-usuario">Usuário</label>
+      <input type="text" id="login-usuario" autocomplete="username" placeholder="Seu usuário">
 
-      <label for="email">E-mail</label>
-      <input type="email" id="email" placeholder="voce@exemplo.com">
+      <label for="login-senha">Senha</label>
+      <div class="senha-wrapper">
+        <input type="password" id="login-senha" autocomplete="current-password" placeholder="Sua senha">
+        <button type="button" class="mostrar-senha" data-alvo="login-senha">Mostrar</button>
+      </div>
 
-      <button type="submit">Enviar</button>
+      <label class="lembrar">
+        <input type="checkbox" id="lembrar"> Manter conectado
+      </label>
+
+      <button type="submit" id="btn-entrar">Entrar</button>
     </form>
 
-    <div id="mensagem" role="status"></div>
+    <div class="mensagem" id="msg-login" role="status"></div>
+
+    <p class="troca">Não tem conta? <a id="ir-cadastro">Cadastre-se</a></p>
+
+    <div class="dica">
+      Contas de teste:<br>
+      <code>admin</code> / <code>1234</code><br>
+      <code>rique</code> / <code>senha123</code>
+    </div>
+  </main>
+
+  <!-- Tela de cadastro -->
+  <main class="card hidden" id="tela-cadastro">
+    <h1>Criar conta</h1>
+    <p class="subtitle">Preencha os dados abaixo.</p>
+
+    <form id="form-cadastro" novalidate>
+      <label for="cad-nome">Nome</label>
+      <input type="text" id="cad-nome" placeholder="Seu nome">
+
+      <label for="cad-usuario">Usuário</label>
+      <input type="text" id="cad-usuario" autocomplete="username" placeholder="Escolha um usuário">
+
+      <label for="cad-senha">Senha</label>
+      <div class="senha-wrapper">
+        <input type="password" id="cad-senha" autocomplete="new-password" placeholder="Mínimo 4 caracteres">
+        <button type="button" class="mostrar-senha" data-alvo="cad-senha">Mostrar</button>
+      </div>
+
+      <label for="cad-confirma">Confirmar senha</label>
+      <input type="password" id="cad-confirma" autocomplete="new-password" placeholder="Repita a senha">
+
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="mensagem" id="msg-cadastro" role="status"></div>
+
+    <p class="troca">Já tem conta? <a id="ir-login">Entrar</a></p>
+  </main>
+
+  <!-- Painel após login -->
+  <main class="card painel hidden" id="tela-painel">
+    <div class="avatar" id="avatar"></div>
+    <h1 id="boas-vindas"></h1>
+    <p class="subtitle">Você está conectado.</p>
+
+    <div class="info">
+      <div><span>Usuário:</span> <strong id="info-usuario"></strong></div>
+      <div><span>Entrou em:</span> <strong id="info-horario"></strong></div>
+    </div>
+
+    <button class="secundario" id="btn-sair">Sair</button>
   </main>
 
   <script>
-    const form = document.getElementById('formulario');
-    const mensagem = document.getElementById('mensagem');
+    // Sistema de login fictício: os dados ficam só no navegador (sem servidor).
+    const USUARIOS_PADRAO = {
+      admin: { nome: 'Administrador', senha: '1234' },
+      rique: { nome: 'Rique', senha: 'senha123' }
+    };
 
-    form.addEventListener('submit', (e) => {
+    const telas = {
+      login: document.getElementById('tela-login'),
+      cadastro: document.getElementById('tela-cadastro'),
+      painel: document.getElementById('tela-painel')
+    };
+
+    function mostrarTela(nome) {
+      Object.entries(telas).forEach(([chave, el]) => {
+        el.classList.toggle('hidden', chave !== nome);
+      });
+    }
+
+    function setMensagem(id, texto, tipo) {
+      const el = document.getElementById(id);
+      el.textContent = texto;
+      el.className = 'mensagem ' + (tipo || '');
+    }
+
+    // Armazenamento com fallback, caso o navegador bloqueie o storage
+    function ler(storage, chave) {
+      try { return JSON.parse(storage.getItem(chave)); } catch { return null; }
+    }
+
+    function gravar(storage, chave, valor) {
+      try { storage.setItem(chave, JSON.stringify(valor)); } catch {}
+    }
+
+    function remover(chave) {
+      try { localStorage.removeItem(chave); sessionStorage.removeItem(chave); } catch {}
+    }
+
+    function obterUsuarios() {
+      return { ...USUARIOS_PADRAO, ...(ler(localStorage, 'usuarios') || {}) };
+    }
+
+    // Login
+    document.getElementById('form-login').addEventListener('submit', (e) => {
       e.preventDefault();
-      const nome = document.getElementById('nome').value.trim();
-      const email = document.getElementById('email').value.trim();
+      const usuario = document.getElementById('login-usuario').value.trim().toLowerCase();
+      const senha = document.getElementById('login-senha').value;
+      const lembrar = document.getElementById('lembrar').checked;
 
-      if (!nome || !email) {
-        mensagem.textContent = 'Por favor, preencha todos os campos.';
-        mensagem.className = 'erro';
+      if (!usuario || !senha) {
+        setMensagem('msg-login', 'Preencha usuário e senha.', 'erro');
         return;
       }
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        mensagem.textContent = 'E-mail inválido.';
-        mensagem.className = 'erro';
-        return;
-      }
+      const btn = document.getElementById('btn-entrar');
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+      setMensagem('msg-login', '');
 
-      mensagem.textContent = `Olá, ${nome}! Teste enviado com sucesso.`;
-      mensagem.className = 'sucesso';
-      form.reset();
+      // Simula o tempo de resposta de um servidor
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+
+        const conta = obterUsuarios()[usuario];
+        if (!conta || conta.senha !== senha) {
+          setMensagem('msg-login', 'Usuário ou senha incorretos.', 'erro');
+          document.getElementById('login-senha').value = '';
+          return;
+        }
+
+        const sessao = { usuario, nome: conta.nome, horario: new Date().toLocaleString('pt-BR') };
+        gravar(lembrar ? localStorage : sessionStorage, 'sessao', sessao);
+        document.getElementById('form-login').reset();
+        setMensagem('msg-login', '');
+        abrirPainel(sessao);
+      }, 600);
     });
+
+    // Cadastro
+    document.getElementById('form-cadastro').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('cad-nome').value.trim();
+      const usuario = document.getElementById('cad-usuario').value.trim().toLowerCase();
+      const senha = document.getElementById('cad-senha').value;
+      const confirma = document.getElementById('cad-confirma').value;
+
+      if (!nome || !usuario || !senha) {
+        setMensagem('msg-cadastro', 'Preencha todos os campos.', 'erro');
+        return;
+      }
+      if (!/^[a-z0-9._-]{3,}$/.test(usuario)) {
+        setMensagem('msg-cadastro', 'Usuário deve ter 3+ caracteres (letras, números, . _ -).', 'erro');
+        return;
+      }
+      if (senha.length < 4) {
+        setMensagem('msg-cadastro', 'A senha deve ter pelo menos 4 caracteres.', 'erro');
+        return;
+      }
+      if (senha !== confirma) {
+        setMensagem('msg-cadastro', 'As senhas não coincidem.', 'erro');
+        return;
+      }
+      if (obterUsuarios()[usuario]) {
+        setMensagem('msg-cadastro', 'Esse usuário já existe.', 'erro');
+        return;
+      }
+
+      const salvos = ler(localStorage, 'usuarios') || {};
+      salvos[usuario] = { nome, senha };
+      gravar(localStorage, 'usuarios', salvos);
+
+      document.getElementById('form-cadastro').reset();
+      setMensagem('msg-cadastro', '');
+      mostrarTela('login');
+      document.getElementById('login-usuario').value = usuario;
+      setMensagem('msg-login', 'Conta criada! Agora é só entrar.', 'sucesso');
+    });
+
+    // Painel
+    function abrirPainel(sessao) {
+      document.getElementById('avatar').textContent = sessao.nome.charAt(0).toUpperCase();
+      document.getElementById('boas-vindas').textContent = `Olá, ${sessao.nome}!`;
+      document.getElementById('info-usuario').textContent = sessao.usuario;
+      document.getElementById('info-horario').textContent = sessao.horario;
+      mostrarTela('painel');
+    }
+
+    document.getElementById('btn-sair').addEventListener('click', () => {
+      remover('sessao');
+      mostrarTela('login');
+      setMensagem('msg-login', 'Você saiu da conta.', 'sucesso');
+    });
+
+    // Navegação entre login e cadastro
+    document.getElementById('ir-cadastro').addEventListener('click', () => {
+      setMensagem('msg-login', '');
+      mostrarTela('cadastro');
+    });
+
+    document.getElementById('ir-login').addEventListener('click', () => {
+      setMensagem('msg-cadastro', '');
+      mostrarTela('login');
+    });
+
+    // Mostrar/ocultar senha
+    document.querySelectorAll('.mostrar-senha').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const campo = document.getElementById(btn.dataset.alvo);
+        const oculto = campo.type === 'password';
+        campo.type = oculto ? 'text' : 'password';
+        btn.textContent = oculto ? 'Ocultar' : 'Mostrar';
+      });
+    });
+
+    // Restaura a sessão ao recarregar a página
+    const sessaoAtual = ler(sessionStorage, 'sessao') || ler(localStorage, 'sessao');
+    if (sessaoAtual) abrirPainel(sessaoAtual);
   </script>
 </body>
 </html>
