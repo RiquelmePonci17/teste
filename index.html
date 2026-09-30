@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tela de Teste</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --border: #d1d5db;
+      --success: #16a34a;
+      --error: #dc2626;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #334155;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.5rem;
+    }
+
+    p.subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 1px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--primary-hover); }
+
+    #mensagem {
+      margin-top: 16px;
+      min-height: 1.2em;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    #mensagem.sucesso { color: var(--success); }
+    #mensagem.erro { color: var(--error); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Tela de Teste</h1>
+    <p class="subtitle">Preencha os campos abaixo.</p>
+
+    <form id="formulario" novalidate>
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" placeholder="Seu nome">
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="voce@exemplo.com">
+
+      <button type="submit">Enviar</button>
+    </form>
+
+    <div id="mensagem" role="status"></div>
+  </main>
+
+  <script>
+    const form = document.getElementById('formulario');
+    const mensagem = document.getElementById('mensagem');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!nome || !email) {
+        mensagem.textContent = 'Por favor, preencha todos os campos.';
+        mensagem.className = 'erro';
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        mensagem.textContent = 'E-mail inválido.';
+        mensagem.className = 'erro';
+        return;
+      }
+
+      mensagem.textContent = `Olá, ${nome}! Teste enviado com sucesso.`;
+      mensagem.className = 'sucesso';
+      form.reset();
+    });
+  </script>
+</body>
+</html>
